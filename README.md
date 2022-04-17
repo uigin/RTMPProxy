@@ -5,7 +5,19 @@ Obviously, for a RTMP application, the data streams mainly refer to audio stream
 
 ## 2. Dependency
 
-**RTMPProxy** only depends on [librtmp 2.3](http://rtmpdump.mplayerhq.hu/download/), while the build of [librtmp 2.3](http://rtmpdump.mplayerhq.hu/download/) requires the [openssl 1.1.1](https://www.openssl.org/source) and [zlib 1.2.11](http://www.zlib.net/). Note that, other versions of openssl and zlib may also work well, but they need to be verified.
+**RTMPProxy** only depends on [librtmp 2.3](http://rtmpdump.mplayerhq.hu/download/), while the build of [librtmp 2.3](http://rtmpdump.mplayerhq.hu/download/) requires the [openssl 1.0.2u](https://www.openssl.org/source/old/1.0.2/) and [zlib 1.2.11](https://sourceforge.net/projects/libpng/files/zlib//). Note that, other versions of openssl and zlib may also work well, but they need to be verified.
 
-Source code and corresponding library files (based on Ubuntu 20.04) of the above three open source projects are already included. 
+## 3. Build Project
+
+- Step 1
+```
+./build_lib.sh <COMPILER_PREFIX>
+```
+By default, the script will use **gcc** to compile the source codes of all libs, but the compiler can be changed by specifying the prefix of target compiler, i.e, **<COMPILER_PREFIX>**.
+- Step 2
+```
+make <COMPILER_PREFIX>
+```
+
+
 
