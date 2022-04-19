@@ -16,7 +16,7 @@ Obviously, for a RTMP application, the data streams mainly refer to audio stream
 By default, the script will use **gcc** to compile the source codes of all libs, but the compiler can be changed by specifying the prefix of target compiler, i.e, **<COMPILER_PREFIX>**.
 - Step 2
 ```
-make <COMPILER_PREFIX>
+make CROSS_COMPILE=<COMPILER_PREFIX>
 ```
 
 

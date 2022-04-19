@@ -94,11 +94,8 @@ void rtmp_server_connect(RTMP_PROXY_SESSION *psession, int mode, int chunk_size)
     RTMP_Init(psession->server_rtmp);
 
     psession->server_rtmp->Link.timeout = 5;
-    len = sprintf(url, "rtmp://%s:%d/%s/%s", app.server_ip, app.server_port, psession->app.av_val, psession->stream.av_val);
-    if (mode == MODE_PUBLISH)
-    {
-        url[len - 1] = '\0';
-    }
+
+    len = sprintf(url, "rtmp://%s:%d/%s/%s", app.server_ip, app.server_port, psession->app, psession->stream);
     if (!RTMP_SetupURL(psession->server_rtmp, url))
     {
         printf("SetupURL Err\n");
@@ -566,7 +563,7 @@ int method_conect_handler(RTMP_PROXY_SESSION *psession, AMFObject obj)
             printf("\t\t %.*s: %.*s\n", pname.av_len, pname.av_val, pval.av_len, pval.av_val);
             if (AVMATCH(&pname, &av_app))
             {
-                psession->app = pval;
+                sprintf(psession->app, "%s", pval.av_val);
             }
         }
     }
@@ -669,10 +666,13 @@ int method_createStream_handler(RTMP_PROXY_SESSION *psession, AMFObject obj)
 
 int method_publish_handler(RTMP_PROXY_SESSION *psession, AMFObject obj, int stream_id)
 {
-    char publish_url[256] = {};
     AVal resp_code_prop_val;
-    AMFProp_GetString(AMF_GetProp(&obj, NULL, 3), &(psession->stream));
+    AVal stream;
 
+    AMFProp_GetString(AMF_GetProp(&obj, NULL, 3), &stream);
+    sprintf(psession->stream, "%s", stream.av_val);
+
+    psession->work_mode = MODE_PUBLISH;
     rtmp_server_connect(psession, MODE_PUBLISH, psession->client_rtmp->m_inChunkSize);
     if (psession->server_rtmp == NULL || !RTMP_IsConnected(psession->server_rtmp))
     {
@@ -696,9 +696,12 @@ int method_FCUnpublish_handler(RTMP_PROXY_SESSION *psession)
 int method_play_handler(RTMP_PROXY_SESSION *psession, AMFObject obj, int stream_id)
 {
     AVal resp_code_prop_val;
+    AVal stream;
+
+    AMFProp_GetString(AMF_GetProp(&obj, NULL, 3), &stream);
+    sprintf(psession->stream, "%s", stream.av_val);
 
     psession->work_mode = MODE_PLAY;
-    AMFProp_GetString(AMF_GetProp(&obj, NULL, 3), &(psession->stream));
     rtmp_server_connect(psession, MODE_PLAY, 0);
     if (psession->server_rtmp == NULL || !RTMP_IsConnected(psession->server_rtmp))
     {
@@ -707,7 +710,6 @@ int method_play_handler(RTMP_PROXY_SESSION *psession, AMFObject obj, int stream_
 
     RTMP_SendChunkSize(psession->client_rtmp, psession->server_rtmp->m_inChunkSize);
 
-    AMFProp_GetString(AMF_GetProp(&obj, NULL, 3), &(psession->stream));
     RTMP_SendPlayStreamBegin(psession->client_rtmp);
 
     resp_code_prop_val.av_val = "NetStream.Play.Reset";

@@ -13,8 +13,8 @@ typedef struct RTMP_PROXY_SESSION
 {
   RTMP *server_rtmp;
   RTMP *client_rtmp;
-  AVal app;
-  AVal stream;
+  char app[128];
+  char stream[128];
   pthread_t work_pt;
   int client_socket;
   int work_mode;
